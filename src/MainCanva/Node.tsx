@@ -1,5 +1,4 @@
-import React, { useContext } from "react";
-import CursorPositionContext from "../context/CursorPositionContext";
+import React from "react";
 import { Ellipse, Text, Group, Circle } from "react-konva";
 
 interface NodeProps {
@@ -12,7 +11,6 @@ interface NodeProps {
 }
 
 const Node: React.FC<NodeProps> = ({ key, label, x, y, draggable, selectedTool }) => {
-  const { CursorPostion, setCursorPostion } = useContext(CursorPositionContext);
   const onNodeDrag = (e: any) => {
     console.log(e.target.position());
   };
@@ -32,7 +30,7 @@ const Node: React.FC<NodeProps> = ({ key, label, x, y, draggable, selectedTool }
         y={y}
         stroke="black"
         onDragMove={(e) => {
-          onNodeDrag(e);
+          console.log(e.target.position());
         }}
         onClick={() => console.log("node")}
       />
@@ -43,7 +41,7 @@ const Node: React.FC<NodeProps> = ({ key, label, x, y, draggable, selectedTool }
         x={x - width / 2}
         y={y - height / 2}
         onDragMove={(e) => {
-          onNodeDrag(e);
+          console.log(e.target.position());
         }}
         fontSize={22}
         align="center"

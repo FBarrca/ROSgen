@@ -9,12 +9,11 @@ function getStyle(width, height) {
     border: "none",
     padding: "0px",
     margin: "0px",
-    background: "red",
+    background: "none",
     outline: "none",
     resize: "none",
     colour: "black",
     fontSize: "24px",
-    fontFamily: "sans-serif",
     margintop: "-4px"
   };
 }

@@ -1,9 +1,9 @@
-import React, { useContext, useEffect, useState, useMemo } from "react";
+import React, { useContext, useState } from "react";
 import { Stage, Layer } from "react-konva";
 import Node from "./Node";
 import ToolContext from "../context/ToolContext";
+import ScaleContext from "../context/ScaleContext";
 import Topic from "./Topic";
-import CursorPositionContext from "../context/CursorPositionContext";
 import DoubleClickInput from "./EditableText/DoubleClickInput";
 
 interface TopicProps {
@@ -27,11 +27,9 @@ interface InputOnDoubleClickState {
 }
 const Canvas = () => {
   //Canvas View Scale and position state
-  const [scale, setScale] = useState<number>(1);
+  const { scale, setScale } = useContext(ScaleContext);
   const [position, setPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-  const [CursorPostion, setCursorPostion] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
-  const providerValue = useMemo(() => ({ CursorPostion, setCursorPostion }), [CursorPostion]);
   const { selectedTool } = useContext(ToolContext);
   //Input on double click state
   const [Input, setInput] = useState<InputOnDoubleClickState>({ enabled: false, x: 0, y: 0 });
@@ -138,19 +136,17 @@ Depending on the selected tool, the code adds a node or a topic to the canvas.
           setInput((prevState) => ({ x: canvasPosition.x, y: canvasPosition.y, enabled: !prevState.enabled }));
         }}
       >
-        <CursorPositionContext.Provider value={providerValue}>
-          <Layer>
-            <DoubleClickInput x={Input.x} y={Input.y} text={text} isEditing={Input.enabled} onToggleEdit={toggleEdit} onChange={(value: any) => setText(value)} />
+        <Layer>
+          <DoubleClickInput x={Input.x} y={Input.y} text={text} isEditing={Input.enabled} onToggleEdit={toggleEdit} onChange={(value: any) => setText(value)} />
 
-            {nodes.map((node) => (
-              <Node x={node.x} y={node.y} key={node.id} label={node.label} draggable selectedTool={selectedTool} />
-            ))}
+          {nodes.map((node) => (
+            <Node x={node.x} y={node.y} key={node.id} label={node.label} draggable selectedTool={selectedTool} />
+          ))}
 
-            {topics.map((topic) => (
-              <Topic x={topic.x} y={topic.y} key={topic.id} label={topic.label} draggable />
-            ))}
-          </Layer>
-        </CursorPositionContext.Provider>
+          {topics.map((topic) => (
+            <Topic x={topic.x} y={topic.y} key={topic.id} label={topic.label} draggable />
+          ))}
+        </Layer>
       </Stage>
     </div>
   );
