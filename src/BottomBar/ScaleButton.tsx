@@ -4,6 +4,13 @@ import ScaleContext from "../context/ScaleContext";
 // import "./App.less";
 import { PlusOutlined, MinusOutlined } from "@ant-design/icons";
 
+/* ScaleButton component for the bottom bar
+    Allows the user to scale the graph view
+    Gets the scale from the ScaleContext
+       Can increase the scale by using the plus button
+       Shows the current scale in percent
+       Can decrease the scale by using the minus button
+*/
 const ScaleButton: React.FC<React.HTMLAttributes<HTMLDivElement>> = () => {
   const { scale, setScale } = useContext(ScaleContext);
   return (
@@ -12,6 +19,7 @@ const ScaleButton: React.FC<React.HTMLAttributes<HTMLDivElement>> = () => {
         <Button
           style={{
             borderRadius: "10px",
+            boxShadow: "5px 8px 24px 5px rgba(208, 216, 243, 0.425)",
           }}
           size="large"
           icon={<PlusOutlined />}
@@ -28,6 +36,7 @@ const ScaleButton: React.FC<React.HTMLAttributes<HTMLDivElement>> = () => {
         <Button
           style={{
             borderRadius: "10px",
+            boxShadow: "5px 8px 24px 5px rgba(208, 216, 243, 0.425)",
           }}
           size="large"
           icon={<MinusOutlined />}
