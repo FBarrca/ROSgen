@@ -12,7 +12,6 @@ interface TopicProps {
   id: string;
   label: string;
 }
-
 interface NodeProps {
   x: number;
   y: number;
@@ -21,7 +20,11 @@ interface NodeProps {
   subscribers: TopicProps[];
   publishers: TopicProps[];
 }
-
+interface InputOnDoubleClickState {
+  enabled: boolean;
+  x: number;
+  y: number;
+}
 const Canvas = () => {
   //Canvas View Scale and position state
   const [scale, setScale] = useState<number>(1);
@@ -30,7 +33,8 @@ const Canvas = () => {
 
   const providerValue = useMemo(() => ({ CursorPostion, setCursorPostion }), [CursorPostion]);
   const { selectedTool } = useContext(ToolContext);
-  const [enableInput, setEnableInput] = useState(false);
+  //Input on double click state
+  const [Input, setInput] = useState<InputOnDoubleClickState>({ enabled: false, x: 0, y: 0 });
 
   const [nodes, setNodes] = useState<NodeProps[]>([]);
   const addNode = (node: NodeProps) => {
@@ -43,24 +47,18 @@ const Canvas = () => {
   const [text, setText] = useState<string>("");
 
   function toggleEdit() {
-    if (enableInput && text.length > 0) {
+    if (Input.enabled && text.length > 0) {
       ToolAction();
       setText("");
     }
-    setEnableInput(!enableInput);
-    /* The code above does the following:
-  If the input was enabled and the text is not empty.
-  1. Then we call the ToolAction function.and set the text to an empty string.
-  2. We set the enableInput to false.
-  If the input was disabled we set the enableInput to true.
-   */
+    setInput((prev) => ({ ...prev, enabled: !prev.enabled }));
   }
   const ToolAction = () => {
     switch (selectedTool) {
       case "node":
         addNode({
-          x: CursorPostion.x,
-          y: CursorPostion.y,
+          x: Input.x,
+          y: Input.y,
           id: nodes.length.toString(),
           label: "/" + text, // "Node " + (nodes.length + 1),
           subscribers: [],
@@ -69,8 +67,8 @@ const Canvas = () => {
         break;
       case "topic":
         addTopic({
-          x: CursorPostion.x,
-          y: CursorPostion.y,
+          x: Input.x,
+          y: Input.y,
           id: topics.length.toString(),
           label: "/" + text, // "Topic " + (topics.length + 1),
         });
@@ -87,20 +85,14 @@ Depending on the selected tool, the code adds a node or a topic to the canvas.
 2. Updates the graph view.
  */
 
-  useEffect(() => {
-    const update = (e: { x: number; y: number }) => {
-      setCursorPostion({ x: e.x, y: e.y });
+  //Convert mouse position into canvas position
+  const mouseToCanvasPosition = (e: any) => {
+    const mousePointTo = {
+      x: e.evt.x / scale - position.x / scale,
+      y: e.evt.y / scale - position.y / scale,
     };
-    window.addEventListener("mousemove", update);
-    return () => {
-      window.removeEventListener("mousemove", update);
-    };
-  }, [CursorPostion]);
-  /* The code above does the following:
-  1. Adds a listener to the window object.
-  2. When the mouse moves, the update function is called.
-  3. The update function sets the cursor position to the current mouse position.
-  4. The update function is removed when the component is unmounted. */
+    return mousePointTo;
+  };
 
   return (
     <div>
@@ -136,16 +128,19 @@ Depending on the selected tool, the code adds a node or a topic to the canvas.
           setPosition(newPos);
         }}
         onClick={(e) => {
+          // console.log(e.evt);
+          // console.log(e.evt.x, e.evt.y);
           const emptySpace = e.target === e.target.getStage();
           if (!emptySpace) {
             return;
           }
-          setEnableInput(true);
+          const canvasPosition = mouseToCanvasPosition(e);
+          setInput((prevState) => ({ x: canvasPosition.x, y: canvasPosition.y, enabled: !prevState.enabled }));
         }}
       >
         <CursorPositionContext.Provider value={providerValue}>
           <Layer>
-            <DoubleClickInput text={text} isEditing={enableInput} onToggleEdit={toggleEdit} onChange={(value: any) => setText(value)} />
+            <DoubleClickInput x={Input.x} y={Input.y} text={text} isEditing={Input.enabled} onToggleEdit={toggleEdit} onChange={(value: any) => setText(value)} />
 
             {nodes.map((node) => (
               <Node x={node.x} y={node.y} key={node.id} label={node.label} draggable selectedTool={selectedTool} />

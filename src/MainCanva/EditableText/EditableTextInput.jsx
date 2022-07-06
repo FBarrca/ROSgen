@@ -9,7 +9,7 @@ function getStyle(width, height) {
     border: "none",
     padding: "0px",
     margin: "0px",
-    background: "none",
+    background: "red",
     outline: "none",
     resize: "none",
     colour: "black",
