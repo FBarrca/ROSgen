@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState, createContext } from "react";
+import React, { createContext } from "react";
 
 type ScaleContextType = {
   scale: number;

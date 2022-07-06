@@ -1,9 +1,9 @@
-import React, { FC, useEffect, useContext } from "react";
-import { Card, Button } from "antd";
+import React from "react";
+import { Button } from "antd";
 import "../App.less";
 import ScaleButton from "./ScaleButton";
 
-import { EnterOutlined, ExportOutlined, BorderlessTableOutlined, EllipsisOutlined, FolderAddTwoTone, FileAddTwoTone, DragOutlined, PlusCircleTwoTone, PlusSquareTwoTone } from "@ant-design/icons";
+import { BorderlessTableOutlined } from "@ant-design/icons";
 
 interface optionProps {
   label: string;
