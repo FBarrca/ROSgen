@@ -23,7 +23,11 @@ interface NodeProps {
 }
 
 const Canvas = () => {
+  //Canvas View Scale and position state
+  const [scale, setScale] = useState<number>(1);
+  const [position, setPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [CursorPostion, setCursorPostion] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+
   const providerValue = useMemo(() => ({ CursorPostion, setCursorPostion }), [CursorPostion]);
   const { selectedTool } = useContext(ToolContext);
   const [enableInput, setEnableInput] = useState(false);
@@ -102,6 +106,30 @@ Depending on the selected tool, the code adds a node or a topic to the canvas.
       <Stage
         width={window.innerWidth * 0.99}
         height={window.innerHeight * 0.99}
+        scale={{ x: scale, y: scale }}
+        onWheel={(event) => {
+          event.evt.preventDefault();
+
+          const { deltaY } = event.evt;
+
+          const isScrollingUp = deltaY < 0;
+          const updateScaleBy = 1.1; // The amount to scale the canvas by on scroll step.
+          const newScale = isScrollingUp ? scale * updateScaleBy : scale / updateScaleBy;
+
+          const mousePointerPositionX = event.evt.x;
+          const mousePointerPositionY = event.evt.y;
+          const mousePointTo = {
+            x: mousePointerPositionX / scale - position.x / scale,
+            y: mousePointerPositionY / scale - position.y / scale,
+          };
+          const newPos = {
+            x: -(mousePointTo.x - mousePointerPositionX / newScale) * newScale,
+            y: -(mousePointTo.y - mousePointerPositionY / newScale) * newScale,
+          };
+
+          setScale(newScale);
+          setPosition(newPos);
+        }}
         onClick={(e) => {
           const emptySpace = e.target === e.target.getStage();
           if (!emptySpace) {
