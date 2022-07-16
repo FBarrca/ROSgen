@@ -18,8 +18,6 @@ import {
   ConnectionCreatorProps,
   InputOnDoubleClickState,
   NodeProps,
-  PublisherProps,
-  SubscriberProps,
   TopicProps,
 } from "../../interfaces/MainCanvas";
 import { KonvaEventObject } from "konva/lib/Node";
@@ -52,22 +50,13 @@ const Canvas = () => {
   const addTopic = (topic: TopicProps) => {
     setTopics([...topics, topic]);
   };
-  //Subscriber state, to store subscribers on graph
-  const [subscribers, setSubscribers] = useState<SubscriberProps[]>([]);
-  const addSubscriber = (sub: SubscriberProps) => {
-    setSubscribers([...subscribers, sub]);
-  };
+
   //ConnectionCreator State, stores the From element of the connection until the user clicks on the To element
   const [connectionCreator, setConnectionCreator] = useState<ConnectionCreatorProps>({
     fromNode: null,
     fromTopic: null,
   });
-  //Publisher State
-  const [publishers, setPublishers] = useState<PublisherProps[]>([]);
-  const addPublisher = (pub: PublisherProps) => {
-    setPublishers([...publishers, pub]);
-  };
-  //Text state, stores the text written in the input
+
   const [text, setText] = useState<string>("");
 
   //toggles the input state, if we are disabling the input, we perform the Toolaction with text and reset the input
@@ -150,7 +139,6 @@ const Canvas = () => {
     }
     const mouse = { x: e.evt.x, y: e.evt.y };
     const canvasPosition = mouseToCanvasPosition(mouse, scale, position);
-    // console.log(canvasPosition);
     //Input position is updated on click and the textbox is toggled
     setInput((prev) => ({ x: canvasPosition.x, y: canvasPosition.y, enabled: !prev.enabled }));
   };
@@ -162,16 +150,24 @@ const Canvas = () => {
         setConnectionCreator({ ...connectionCreator, fromNode: node });
       } else {
         //Creating a subscriber
-        const fromTopicId = connectionCreator.fromTopic;
-        addSubscriber({
-          id: subscribers.length.toString(),
-          fromTopic: fromTopicId,
-          toNode: node,
-          fromOffset: { x: 0, y: 0 },
-          toOffset: { x: 0, y: 0 },
-        });
-        const topic = topics.find((topic) => topic.id === fromTopicId.id);
-        if (topic) node.subscribers.push(topic);
+        const fromTopic = connectionCreator.fromTopic;
+        const topic = topics.find((topic) => topic.id === fromTopic.id);
+        if (!topic) return;
+        setNodes((prev) =>
+          prev.map((n) => {
+            if (n.id === node.id) {
+              if (n.subscribers.find((sub) => sub.topicID === topic.id)) {
+                return n; // If the node already has the topic as a subscriber, do nothing
+              }
+              console.log("subscriber added");
+              n.subscribers.push({
+                id: node.subscribers.length.toString(),
+                topicID: fromTopic.id,
+              });
+            }
+            return n;
+          })
+        );
         setConnectionCreator({ fromNode: null, fromTopic: null }); //reset connectionCreator
       }
     }
@@ -183,13 +179,24 @@ const Canvas = () => {
         setConnectionCreator({ ...connectionCreator, fromTopic: topic });
       } else {
         //Creating a publisher
-        const fromNodeId = connectionCreator.fromNode;
-        addPublisher({
-          id: subscribers.length.toString(),
-          fromNode: fromNodeId,
-          toTopic: topic,
-        });
-        // reset all connectionCreator
+        const fromNode = connectionCreator.fromNode;
+        const node = nodes.find((node) => node.id === fromNode.id);
+        if (!node) return;
+        setNodes((prev) =>
+          prev.map((n) => {
+            if (n.id === node.id) {
+              if (n.publishers.find((sub) => sub.topicID === topic.id)) {
+                return n; // If the node already has the topic as a publisher, do nothing
+              }
+              console.log("publisher added");
+              n.publishers.push({
+                id: node.publishers.length.toString(),
+                topicID: topic.id,
+              });
+            }
+            return n;
+          })
+        );
         setConnectionCreator({ fromNode: null, fromTopic: null });
       }
     }
@@ -235,16 +242,8 @@ const Canvas = () => {
   };
 
   useEffect(() => {
-    console.log(connectionCreator.fromNode?.id);
-    console.log(nodes.find((node) => node.id === connectionCreator.fromNode?.id));
-    console.log(connectionCreator);
-  }, [connectionCreator]);
-  useEffect(() => {
-    console.log("subscribers", subscribers);
-  }, [subscribers]);
-  useEffect(() => {
-    console.log("publishers", publishers);
-  }, [publishers]);
+    console.log("Nodes", nodes);
+  }, [nodes]);
 
   return (
     <div>
@@ -268,39 +267,44 @@ const Canvas = () => {
                 onToggleEdit={handletoggleEdit}
                 onChange={(value: any) => setText(value)}
               />
-              {publishers.map((pub) => {
+              {nodes.map((node) => {
+                return node.subscribers.map((sub) => {
+                  return (
+                    <Subscriber
+                      id={sub.id}
+                      key={"Sub" + sub.id}
+                      //Currently offset isnt updated on subscriber so we use the position of the topic and subscriber object
+                      fromTopic={topics.find((topic) => topic.id === sub.topicID)}
+                      toNode={node}
+                    />
+                  );
+                });
+              })}
+              {nodes.map((node) => {
+                return node.publishers.map((pub) => {
+                  return (
+                    <Publisher
+                      id={pub.id}
+                      key={"Pub" + pub.id}
+                      //Currently offset isnt updated on subscriber so we use the position of the topic and subscriber object
+                      toTopic={topics.find((topic) => topic.id === pub.topicID)}
+                      fromNode={node}
+                    />
+                  );
+                });
+              })}
+              {nodes.map((node) => {
                 return (
-                  <Publisher
-                    id={pub.id}
-                    key={"Pub" + pub.id}
-                    //Currently offset isnt updated on subscriber so we use the position of the topic and subscriber object
-                    toTopic={topics.find((topic) => topic.id === pub.toTopic.id)}
-                    fromNode={nodes.find((node) => node.id === pub.fromNode.id)}
+                  <Node
+                    node={node}
+                    key={"Node" + node.id}
+                    selectedTool={selectedTool}
+                    onClick={(e: KonvaEventObject<MouseEvent>) => handleNodeClick(e, node)}
+                    onDragMove={(e: KonvaEventObject<DragEvent>) => handleDragMoveNode(e)}
+                    selectedColor={node.id === connectionCreator.fromNode?.id ? "red" : "black"}
                   />
                 );
               })}
-              {subscribers.map((sub) => {
-                return (
-                  <Subscriber
-                    id={sub.id}
-                    key={"Sub" + sub.id}
-                    //Currently offset isnt updated on subscriber so we use the position of the topic and subscriber object
-                    fromTopic={topics.find((topic) => topic.id === sub.fromTopic.id)}
-                    toNode={nodes.find((node) => node.id === sub.toNode.id)}
-                  />
-                );
-              })}
-              {nodes.map((node) => (
-                <Node
-                  node={node}
-                  key={"Node" + node.id}
-                  selectedTool={selectedTool}
-                  onClick={(e: KonvaEventObject<MouseEvent>) => handleNodeClick(e, node)}
-                  onDragMove={(e: KonvaEventObject<DragEvent>) => handleDragMoveNode(e)}
-                  selectedColor={node.id === connectionCreator.fromNode?.id ? "red" : "black"}
-                />
-              ))}
-
               {topics.map((topic) => (
                 <Topic
                   topic={topic}
