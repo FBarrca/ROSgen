@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState, createContext } from "react";
+import React, { createContext } from "react";
 
 //Position context for cursor position on one state
 type CursorPositionContextType = {

@@ -1,6 +1,6 @@
 import React from "react";
 import { Button, Tooltip } from "antd";
-import "./App.less";
+import "../../App.less";
 
 interface SideButtonProps {
   icon: React.ReactNode;

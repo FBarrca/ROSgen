@@ -1,6 +1,6 @@
 import React from "react";
 import { Button } from "antd";
-import "../App.less";
+import "../../App.less";
 import ScaleButton from "./ScaleButton";
 
 import { BorderlessTableOutlined } from "@ant-design/icons";
@@ -25,7 +25,9 @@ const BottomBar: React.FC = () => {
   return (
     <div className={"bottom-nav"}>
       {options.map((option) => (
-        <Button className={"bottom-button"}>{option.label} </Button>
+        <Button className={"bottom-button"} key={option.value}>
+          {option.label}{" "}
+        </Button>
       ))}
       <ScaleButton className={"bottom-button"} />
     </div>

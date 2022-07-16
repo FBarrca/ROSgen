@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { Space, Button, Tooltip } from "antd";
-import ScaleContext from "../context/ScaleContext";
+import ScaleContext from "../../hooks/ScaleContext";
 // import "./App.less";
 import { PlusOutlined, MinusOutlined } from "@ant-design/icons";
 

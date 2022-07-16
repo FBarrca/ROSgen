@@ -1,10 +1,10 @@
-import React, { FC, useEffect, useContext } from "react";
+import React, { FC, useContext } from "react";
 import { Card } from "antd";
-import "./App.less";
+import "../../App.less";
 import SidebarButton from "./SidebarButton";
-import ToolContext from "./context/ToolContext";
+import ToolContext from "../../hooks/ToolContext";
 
-import { EnterOutlined, ExportOutlined, BorderlessTableOutlined, EllipsisOutlined, FolderAddTwoTone, FileAddTwoTone, DragOutlined, PlusCircleTwoTone, PlusSquareTwoTone } from "@ant-design/icons";
+import { EnterOutlined, ExportOutlined, BorderlessTableOutlined, EllipsisOutlined, FolderAddTwoTone, FileAddTwoTone, PlusCircleTwoTone, PlusSquareTwoTone } from "@ant-design/icons";
 
 interface optionProps {
   label: string;
@@ -70,7 +70,7 @@ const options: optionProps[] = [
   },
 ];
 
-const Sidebar: React.FC = () => {
+const Sidebar: FC = () => {
   const { selectedTool, setSelectedTool } = useContext(ToolContext);
   return (
     <Card
