@@ -1,6 +1,5 @@
-import React, { useContext, useEffect } from "react";
-import { Ellipse, Text, Group, Circle } from "react-konva";
-import ToolContext from "../../hooks/ToolContext";
+import React from "react";
+import { Ellipse, Text, Group } from "react-konva";
 import { NodeProps } from "../../interfaces/MainCanvas";
 
 interface NodeComponentProps {
@@ -40,7 +39,7 @@ const Node: React.FC<NodeComponentProps> = (props) => {
       <Text
         width={width}
         height={height}
-        text={props.node.label}
+        text={"/" + props.node.label}
         x={newPosition.x - width / 2}
         y={newPosition.y - height / 2}
         fontSize={22}

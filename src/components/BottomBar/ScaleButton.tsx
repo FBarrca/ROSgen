@@ -18,14 +18,16 @@ const ScaleButton: React.FC<React.HTMLAttributes<HTMLDivElement>> = () => {
       <Tooltip title={"Increase view scale"} placement="left" mouseEnterDelay={1}>
         <Button
           style={{
-            borderRadius: "10px",
+            //round top corners
+            borderRadius: "20px 20px 0 0",
+
             boxShadow: "5px 8px 24px 5px rgba(208, 216, 243, 0.425)",
           }}
           size="large"
           icon={<PlusOutlined />}
           type="ghost"
           onClick={() => {
-            setScale(scale + 0.1);
+            setScale((prev) => prev + 0.1);
           }}
         />
       </Tooltip>
@@ -35,14 +37,14 @@ const ScaleButton: React.FC<React.HTMLAttributes<HTMLDivElement>> = () => {
       <Tooltip title={"Decrease view scale"} placement="left" mouseEnterDelay={1}>
         <Button
           style={{
-            borderRadius: "10px",
+            borderRadius: "0 0 20px 20px",
             boxShadow: "5px 8px 24px 5px rgba(208, 216, 243, 0.425)",
           }}
           size="large"
           icon={<MinusOutlined />}
           type="ghost"
           onClick={() => {
-            setScale(scale - 0.1);
+            setScale((prev) => (prev > 0.101 ? prev - 0.1 : prev));
           }}
         />
       </Tooltip>

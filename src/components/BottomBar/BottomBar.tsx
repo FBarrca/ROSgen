@@ -23,14 +23,19 @@ const options: optionProps[] = [
 // BottomBar component is used to display buttons at the bottom right of the screen
 const BottomBar: React.FC = () => {
   return (
-    <div className={"bottom-nav"}>
-      {options.map((option) => (
-        <Button className={"bottom-button"} key={option.value}>
-          {option.label}{" "}
-        </Button>
-      ))}
-      <ScaleButton className={"bottom-button"} />
-    </div>
+    <>
+      {/* <div className={"bottom-nav bottom-center"} style={{ justifyContent: "center" }}>
+        <ScaleButton className={"bottom-button"} />
+      </div> */}
+      <div className={"bottom-nav"} style={{ right: 0 }}>
+        {options.map((option) => (
+          <Button className={"bottom-button"} key={option.value}>
+            {option.label}{" "}
+          </Button>
+        ))}
+        <ScaleButton className={"bottom-button"} />
+      </div>
+    </>
   );
 };
 export default BottomBar;

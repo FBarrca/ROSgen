@@ -4,7 +4,17 @@ import "../../App.less";
 import SidebarButton from "./SidebarButton";
 import ToolContext from "../../hooks/ToolContext";
 
-import { EnterOutlined, ExportOutlined, BorderlessTableOutlined, EllipsisOutlined, FolderAddTwoTone, FileAddTwoTone, PlusCircleTwoTone, PlusSquareTwoTone } from "@ant-design/icons";
+import {
+  InfoCircleOutlined,
+  NodeIndexOutlined,
+  ExportOutlined,
+  BorderlessTableOutlined,
+  EllipsisOutlined,
+  FolderAddTwoTone,
+  FileAddTwoTone,
+  PlusCircleTwoTone,
+  PlusSquareTwoTone,
+} from "@ant-design/icons";
 
 interface optionProps {
   label: string;
@@ -27,6 +37,12 @@ const options: optionProps[] = [
     toggle: false,
   },
   {
+    label: "Information Drawer",
+    value: "drawer",
+    icon: <InfoCircleOutlined />,
+    toggle: true,
+  },
+  {
     label: "Add Comment",
     value: "comment",
     icon: <FileAddTwoTone />,
@@ -35,7 +51,7 @@ const options: optionProps[] = [
   {
     label: "Connections",
     value: "connect",
-    icon: <EnterOutlined />,
+    icon: <NodeIndexOutlined />,
     toggle: true,
   },
   {
@@ -86,7 +102,14 @@ const Sidebar: FC = () => {
       bodyStyle={{ paddingLeft: "10px", paddingRight: "10px", paddingTop: "0px", paddingBottom: "10px" }}
     >
       {options.map((option) => (
-        <SidebarButton key={option.value} icon={option.icon} onClick={setSelectedTool} label={option.label} option={option.value} selected={option.toggle && selectedTool === option.value} />
+        <SidebarButton
+          key={option.value}
+          icon={option.icon}
+          onClick={setSelectedTool}
+          label={option.label}
+          option={option.value}
+          selected={option.toggle && selectedTool === option.value}
+        />
       ))}
     </Card>
   );

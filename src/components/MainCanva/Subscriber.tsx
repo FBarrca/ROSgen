@@ -6,6 +6,8 @@ interface SubscriberProps {
   id: string;
   fromTopic: TopicProps | any;
   toNode: NodeProps | any;
+
+  // onClick: (e: any) => void;
 }
 
 const Subscriber: React.FC<SubscriberProps> = (props) => {
@@ -47,7 +49,7 @@ const Subscriber: React.FC<SubscriberProps> = (props) => {
 
   return (
     <Group>
-      <Arrow key={props.id} points={points} stroke="black" fill="black" />
+      <Arrow key={id} points={points} hitStrokeWidth={20} stroke="black" fill="black" />
     </Group>
   );
 };

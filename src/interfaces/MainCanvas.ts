@@ -11,16 +11,34 @@ export interface NodeProps {
   };
   id: string;
   label: string;
-  subscribers: {
-    id: string;
-    topicID: string; //Topicid
-  }[];
-  publishers: {
-    id: string;
-    topicID: string; //Topicid
-  }[];
+  subscribers: SubscriberProps[];
+  publishers: PublisherProps[];
+  device: number;
+  description: String;
 }
-  toTopic: TopicProps;
+export interface DeviceProps {
+  color: string;
+  name: string;
+  id: number;
+}
+export interface SubscriberProps {
+  id: string;
+  topicID: string; //Topicid
+}
+export interface PublisherProps {
+  id: string;
+  topicID: string; //Topicid
+  QOS: QOSProps;
+  rate: number;
+}
+export interface QOSProps {
+  history: "last" | "all";
+  //number bigger than 0
+  depth: number;
+  reliability: "reliable" | "best_effort";
+  durability: "transient_local" | "volatile";
+}
+
 export interface TopicProps {
   position: {
     // initial position of the node
@@ -34,8 +52,11 @@ export interface TopicProps {
   };
   id: string;
   label: string;
+  type: {
+    class: string;
+    type: string;
+  };
 }
-
 export interface ConnectionCreatorProps {
   fromTopic: TopicProps | null;
   fromNode: NodeProps | null;

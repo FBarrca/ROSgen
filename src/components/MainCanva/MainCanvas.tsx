@@ -7,6 +7,7 @@ import PositionContext from "../../hooks/PositionContext";
 
 import Node from "./Node";
 import Topic from "./Topic";
+import Comment from "./Comment";
 import Subscriber from "./Subscriber";
 import Publisher from "./Publisher";
 
@@ -22,6 +23,11 @@ import {
 } from "../../interfaces/MainCanvas";
 import { KonvaEventObject } from "konva/lib/Node";
 
+import DrawerContext from "../../hooks/DrawerContext";
+import NodesContext from "../../hooks/NodesContext";
+import TopicsContext from "../../hooks/TopicsContext";
+import DevicesContext from "../../hooks/DevicesContext";
+
 // import "../../interfaces/MainCanvas";
 const Canvas = () => {
   //Canvas View Scale and position state
@@ -31,6 +37,13 @@ const Canvas = () => {
   const providerValuePosition = useMemo(() => ({ position, setPosition }), [position, setPosition]);
   const [initialPosition, setInitialPosition] = useState<{ x: number; y: number } | null>(null);
 
+  //Drawer state
+  const { drawerState, setDrawerState } = useContext(DrawerContext);
+  const providerValueDrawer = useMemo(() => ({ drawerState, setDrawerState }), [drawerState, setDrawerState]);
+  const showDrawer = () => {
+    setDrawerState({ ...drawerState, visible: true });
+  };
+  //Sidebar option state
   const { selectedTool } = useContext(ToolContext);
   //Input on double click state
   const [Input, setInput] = useState<InputOnDoubleClickState>({ enabled: false, x: 0, y: 0 });
@@ -41,16 +54,23 @@ const Canvas = () => {
     setComments([...comments, comment]);
   };
   //Node state, to store nodes on graph
-  const [nodes, setNodes] = useState<NodeProps[]>([]);
+  // const [nodes, setNodes] = useState<NodeProps[]>([]);
+  const { nodes, setNodes } = useContext(NodesContext);
+  // const providerValueNodes = useMemo(() => ({ nodes, setNodes }), [nodes, setNodes]);
+
   const addNode = (node: NodeProps) => {
     setNodes([...nodes, node]);
+    console.log("New nodes", nodes, "Added node", node);
   };
   //Topic state, to store topics on graph
-  const [topics, setTopics] = useState<TopicProps[]>([]);
+  // const [topics, setTopics] = useState<TopicProps[]>([]);
+  const { topics, setTopics } = useContext(TopicsContext);
   const addTopic = (topic: TopicProps) => {
     setTopics([...topics, topic]);
   };
 
+  const { devices, setDevices } = useContext(DevicesContext);
+  const providerValueDevices = useMemo(() => ({ devices, setDevices }), [devices, setDevices]);
   //ConnectionCreator State, stores the From element of the connection until the user clicks on the To element
   const [connectionCreator, setConnectionCreator] = useState<ConnectionCreatorProps>({
     fromNode: null,
@@ -75,9 +95,11 @@ const Canvas = () => {
           position: { x: Input.x, y: Input.y },
           offset: { x: 0, y: 0 },
           id: nodes.length.toString(),
-          label: "/" + text, // "Node " + (nodes.length + 1),
+          label: text, // "Node " + (nodes.length + 1),
           subscribers: [],
           publishers: [],
+          device: devices.selected,
+          description: "",
         });
         break;
       case "topic":
@@ -85,7 +107,13 @@ const Canvas = () => {
           position: { x: Input.x, y: Input.y },
           offset: { x: 0, y: 0 },
           id: topics.length.toString(),
-          label: "/" + text, // "Topic " + (topics.length + 1),
+          label: text, // "Topic " + (topics.length + 1),
+          type: {
+            class: "geometry_msgs",
+            type: "Twist.msg",
+          },
+
+          //must source topy types from github //https://github.com/ros2/common_interfaces/blob/37ebe90cbfa91bcdaf69d6ed39c08859c4c3bcd4/geometry_msgs/msg/Twist.msg
         });
         break;
       case "comment":
@@ -106,7 +134,6 @@ const Canvas = () => {
   //Zoom on stage with mouse wheel
   const handleZoom = (e: KonvaEventObject<WheelEvent>) => {
     e.evt.preventDefault();
-
     const { deltaY } = e.evt;
 
     const isScrollingUp = deltaY < 0;
@@ -145,6 +172,7 @@ const Canvas = () => {
 
   const handleNodeClick = (e: KonvaEventObject<MouseEvent>, node: NodeProps) => {
     if (selectedTool === "connect") {
+      // if it's the first click, set the fromTopic
       if (connectionCreator.fromTopic == null) {
         //Creating a publisher
         setConnectionCreator({ ...connectionCreator, fromNode: node });
@@ -170,10 +198,17 @@ const Canvas = () => {
         );
         setConnectionCreator({ fromNode: null, fromTopic: null }); //reset connectionCreator
       }
+    } else {
+      setDrawerState({
+        visible: true,
+        content: node,
+        type: "node",
+      });
     }
   };
   const handleTopicClick = (e: KonvaEventObject<MouseEvent>, topic: TopicProps) => {
     if (selectedTool === "connect") {
+      // if it's the first click, set the fromNode
       if (connectionCreator.fromNode == null) {
         //Creating a subscriber
         setConnectionCreator({ ...connectionCreator, fromTopic: topic });
@@ -192,6 +227,13 @@ const Canvas = () => {
               n.publishers.push({
                 id: node.publishers.length.toString(),
                 topicID: topic.id,
+                QOS: {
+                  history: "last",
+                  depth: 10,
+                  reliability: "reliable",
+                  durability: "transient_local",
+                },
+                rate: 10,
               });
             }
             return n;
@@ -199,8 +241,16 @@ const Canvas = () => {
         );
         setConnectionCreator({ fromNode: null, fromTopic: null });
       }
+    } else {
+      //If the user is not connecting nodes, we select the topic and show on the drawer
+      setDrawerState({
+        visible: true,
+        content: topic,
+        type: "topic",
+      });
     }
   };
+
   const handleDragMoveNode = (e: KonvaEventObject<DragEvent>) => {
     const movingNode = e.target;
     const newPos = mouseToCanvasPosition(movingNode._lastPos, scale, position);
@@ -241,9 +291,16 @@ const Canvas = () => {
     setTopics(updatedTopics);
   };
 
+  // useEffect(() => {
+  //   console.log("Nodes", nodes);
+  // }, [nodes]);
   useEffect(() => {
-    console.log("Nodes", nodes);
-  }, [nodes]);
+    setConnectionCreator({ fromNode: null, fromTopic: null });
+  }, [selectedTool]);
+
+  const findColor = (deviceId: number) => {
+    return devices.list.find((device) => device.id === deviceId)?.color || "black";
+  };
 
   return (
     <div>
@@ -256,67 +313,83 @@ const Canvas = () => {
         onClick={handleTextInput}
         // onTap={handleTextInput}
       >
-        <ScaleContext.Provider value={providerValueScale}>
-          <PositionContext.Provider value={providerValuePosition}>
-            <Layer>
-              <DoubleClickInput
-                x={Input.x}
-                y={Input.y}
-                text={text}
-                isEditing={Input.enabled}
-                onToggleEdit={handletoggleEdit}
-                onChange={(value: any) => setText(value)}
-              />
-              {nodes.map((node) => {
-                return node.subscribers.map((sub) => {
-                  return (
-                    <Subscriber
-                      id={sub.id}
-                      key={"Sub" + sub.id}
-                      //Currently offset isnt updated on subscriber so we use the position of the topic and subscriber object
-                      fromTopic={topics.find((topic) => topic.id === sub.topicID)}
-                      toNode={node}
-                    />
-                  );
-                });
-              })}
-              {nodes.map((node) => {
-                return node.publishers.map((pub) => {
-                  return (
-                    <Publisher
-                      id={pub.id}
-                      key={"Pub" + pub.id}
-                      //Currently offset isnt updated on subscriber so we use the position of the topic and subscriber object
-                      toTopic={topics.find((topic) => topic.id === pub.topicID)}
-                      fromNode={node}
-                    />
-                  );
-                });
-              })}
-              {nodes.map((node) => {
-                return (
-                  <Node
-                    node={node}
-                    key={"Node" + node.id}
-                    selectedTool={selectedTool}
-                    onClick={(e: KonvaEventObject<MouseEvent>) => handleNodeClick(e, node)}
-                    onDragMove={(e: KonvaEventObject<DragEvent>) => handleDragMoveNode(e)}
-                    selectedColor={node.id === connectionCreator.fromNode?.id ? "red" : "black"}
+        {/* Because of how Konva works, we need to use providers again */}
+        {/* <NodesContext.Provider value={providerValueNodes}> */}
+        <DrawerContext.Provider value={providerValueDrawer}>
+          <ScaleContext.Provider value={providerValueScale}>
+            <PositionContext.Provider value={providerValuePosition}>
+              <DevicesContext.Provider value={providerValueDevices}>
+                <Layer>
+                  <DoubleClickInput
+                    x={Input.x}
+                    y={Input.y}
+                    text={text}
+                    isEditing={Input.enabled}
+                    onToggleEdit={handletoggleEdit}
+                    onChange={(value: any) => setText(value)}
                   />
-                );
-              })}
-              {topics.map((topic) => (
-                <Topic
-                  topic={topic}
-                  key={"Topic" + topic.id}
-                  onClick={(e: KonvaEventObject<MouseEvent>) => handleTopicClick(e, topic)}
-                  onDragMove={(e: KonvaEventObject<DragEvent>) => handleDragMoveTopic(e)}
-                  selectedColor={topic.id === connectionCreator.fromTopic?.id ? "red" : "black"}
-                />
-              ))}
-            </Layer>
-          </PositionContext.Provider>
-        </ScaleContext.Provider>
+                  {nodes.map((node) => {
+                    return node.subscribers.map((sub) => {
+                      return (
+                        <Subscriber
+                          id={sub.id}
+                          key={"Sub" + sub.id}
+                          //Currently offset isnt updated on subscriber so we use the position of the topic and subscriber object
+                          fromTopic={topics.find((topic) => topic.id === sub.topicID)}
+                          toNode={node}
+                          // onClick={handleSubscriberClick(e)}
+                        />
+                      );
+                    });
+                  })}
+                  {nodes.map((node) => {
+                    return node.publishers.map((pub) => {
+                      return (
+                        <Publisher
+                          id={pub.id}
+                          key={"Pub" + pub.id}
+                          //Currently offset isnt updated on subscriber so we use the position of the topic and subscriber object
+                          toTopic={topics.find((topic) => topic.id === pub.topicID)}
+                          fromNode={node}
+                          // onClick={(e: KonvaEventObject<MouseEvent>) => console.log("comment clicked")}
+                        />
+                      );
+                    });
+                  })}
+                  {nodes.map((node) => {
+                    return (
+                      <Node
+                        node={node}
+                        key={"Node" + node.id}
+                        selectedTool={selectedTool}
+                        onClick={(e: KonvaEventObject<MouseEvent>) => handleNodeClick(e, node)}
+                        onDragMove={(e: KonvaEventObject<DragEvent>) => handleDragMoveNode(e)}
+                        selectedColor={node.id === connectionCreator.fromNode?.id ? "red" : findColor(node.device)}
+                      />
+                    );
+                  })}
+                  {topics.map((topic) => (
+                    <Topic
+                      topic={topic}
+                      key={"Topic" + topic.id}
+                      onClick={(e: KonvaEventObject<MouseEvent>) => handleTopicClick(e, topic)}
+                      onDragMove={(e: KonvaEventObject<DragEvent>) => handleDragMoveTopic(e)}
+                      selectedColor={topic.id === connectionCreator.fromTopic?.id ? "red" : "black"}
+                    />
+                  ))}
+                  {comments.map((comment) => (
+                    <Comment
+                      comment={comment}
+                      key={"Comment " + comment.id}
+                      onClick={(e: KonvaEventObject<MouseEvent>) => console.log("comment clicked")}
+                      onDragMove={(e: KonvaEventObject<DragEvent>) => console.log("comment dragged")}
+                    />
+                  ))}
+                </Layer>
+              </DevicesContext.Provider>
+            </PositionContext.Provider>
+          </ScaleContext.Provider>
+        </DrawerContext.Provider>
       </Stage>
     </div>
   );

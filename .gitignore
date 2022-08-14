@@ -10,7 +10,7 @@
 
 # production
 /build
-
+/python/common_interfaces
 # misc
 .DS_Store
 .env.local

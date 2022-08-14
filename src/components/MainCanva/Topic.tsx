@@ -35,7 +35,7 @@ const Topic: React.FC<Props> = (props) => (
     <Text
       width={120}
       height={60}
-      text={props.topic.label}
+      text={"/" + props.topic.label}
       x={props.topic.position.x}
       y={props.topic.position.y}
       fontSize={22}

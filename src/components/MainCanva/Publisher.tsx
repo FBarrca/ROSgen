@@ -1,13 +1,18 @@
-import React from "react";
+import { KonvaEventObject } from "konva/lib/Node";
+import React, { useContext } from "react";
 import { Group, Arrow } from "react-konva";
 import { NodeProps, TopicProps } from "../../interfaces/MainCanvas";
-
+import DrawerContext from "../../hooks/DrawerContext";
 interface PublisherProps {
   id: string;
   fromNode: NodeProps | any;
   toTopic: TopicProps | any;
+
+  // onClick={props.onClick}
 }
 const Publisher: React.FC<PublisherProps> = (props) => {
+  const { drawerState, setDrawerState } = useContext(DrawerContext);
+
   const { id, fromNode, toTopic } = props;
   //Spawn position and drag offset for both topic and node
   const { x: toX, y: toY } = toTopic.position;
@@ -60,9 +65,21 @@ const Publisher: React.FC<PublisherProps> = (props) => {
   }
   const points = [NodePosition.x, NodePosition.y, TopicPosition.x + NodeOffset.x, TopicPosition.y + NodeOffset.y];
 
+  const handleClick = (e: KonvaEventObject<MouseEvent>) => {
+    console.log("click publisher");
+    setDrawerState({
+      ...drawerState,
+      type: "publisher",
+      content: {
+        fromNode: fromNode,
+        toTopic: toTopic,
+      },
+      visible: true,
+    });
+  };
   return (
     <Group>
-      <Arrow key={props.id} points={points} stroke="black" fill="black" />
+      <Arrow key={id} points={points} hitStrokeWidth={20} stroke="black" fill="black" onClick={(e) => handleClick(e)} />
     </Group>
   );
 };
