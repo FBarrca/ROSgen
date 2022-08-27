@@ -3,6 +3,7 @@ import DrawerContext from "../../hooks/DrawerContext";
 import DrawerTopic from "./DrawerTopic";
 import DrawerNode from "./DrawerNode";
 import DrawerPub from "./DrawerPub";
+import DrawerSub from "./DrawerSub";
 const InfoDrawer: React.FC = () => {
   const { drawerState } = useContext(DrawerContext);
 
@@ -14,8 +15,8 @@ const InfoDrawer: React.FC = () => {
       return <DrawerTopic />;
     case "node":
       return <DrawerNode />;
-    // case "subscriber":
-    //   return <DrawerSubscriber />;
+    case "subscriber":
+      return <DrawerSub />;
     case "publisher":
       return <DrawerPub />;
 

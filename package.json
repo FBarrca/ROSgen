@@ -1,6 +1,7 @@
 {
   "name": "ROSgen",
   "version": "0.1.0",
+  "homepage": "https://github.com/FranciscoBarCa/ROSgen",
   "private": true,
   "dependencies": {
     "@ant-design/icons": "^4.7.0",
@@ -8,6 +9,7 @@
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^13.5.0",
+    "@types/file-saver": "^2.0.5",
     "@types/jest": "^27.5.2",
     "@types/node": "^16.11.47",
     "@types/react": "^18.0.17",
@@ -15,6 +17,9 @@
     "antd": "^4.22.4",
     "craco-antd": "^2.0.0",
     "craco-less": "^2.0.0",
+    "file-saver": "^2.0.5",
+    "gh-pages": "^4.0.0",
+    "jszip": "^3.10.1",
     "konva": "^8.3.11",
     "react": "^18.2.0",
     "react-colorful": "^5.5.1",
@@ -26,6 +31,8 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "start": "craco start",
     "build": "craco build",
     "test": "craco test",

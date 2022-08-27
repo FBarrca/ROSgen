@@ -4,6 +4,10 @@ import "../../App.less";
 import ScaleButton from "./ScaleButton";
 
 import { BorderlessTableOutlined } from "@ant-design/icons";
+import CodeGenerator from "../ExportCode/main";
+import NodesContext from "../../hooks/NodesContext";
+import TopicsContext from "../../hooks/TopicsContext";
+import DevicesContext from "../../hooks/DevicesContext";
 
 interface optionProps {
   label: string;
@@ -22,6 +26,9 @@ const options: optionProps[] = [
 
 // BottomBar component is used to display buttons at the bottom right of the screen
 const BottomBar: React.FC = () => {
+  const { nodes, setNodes } = React.useContext(NodesContext);
+  const { topics, setTopics } = React.useContext(TopicsContext);
+  const { devices, setDevices } = React.useContext(DevicesContext);
   return (
     <>
       {/* <div className={"bottom-nav bottom-center"} style={{ justifyContent: "center" }}>
@@ -29,7 +36,13 @@ const BottomBar: React.FC = () => {
       </div> */}
       <div className={"bottom-nav"} style={{ right: 0 }}>
         {options.map((option) => (
-          <Button className={"bottom-button"} key={option.value}>
+          <Button
+            className={"bottom-button"}
+            key={option.value}
+            onClick={() => {
+              CodeGenerator(nodes, topics, devices.list);
+            }}
+          >
             {option.label}{" "}
           </Button>
         ))}

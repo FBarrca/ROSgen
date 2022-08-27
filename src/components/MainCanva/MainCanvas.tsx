@@ -191,6 +191,7 @@ const Canvas = () => {
               n.subscribers.push({
                 id: node.subscribers.length.toString(),
                 topicID: fromTopic.id,
+                rate: 10,
               });
             }
             return n;

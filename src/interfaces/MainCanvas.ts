@@ -24,6 +24,7 @@ export interface DeviceProps {
 export interface SubscriberProps {
   id: string;
   topicID: string; //Topicid
+  rate: number;
 }
 export interface PublisherProps {
   id: string;
