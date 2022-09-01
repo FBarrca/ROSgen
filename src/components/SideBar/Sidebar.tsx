@@ -1,4 +1,4 @@
-import React, { FC, useContext } from "react";
+import React, { FC, useContext, useEffect } from "react";
 import { Card } from "antd";
 import "../../App.less";
 import SidebarButton from "./SidebarButton";
@@ -15,6 +15,10 @@ import {
   PlusCircleTwoTone,
   PlusSquareTwoTone,
 } from "@ant-design/icons";
+import CodeGenerator from "../ExportCode/main";
+import NodesContext from "../../hooks/NodesContext";
+import TopicsContext from "../../hooks/TopicsContext";
+import DevicesContext from "../../hooks/DevicesContext";
 
 interface optionProps {
   label: string;
@@ -23,13 +27,6 @@ interface optionProps {
   toggle: boolean;
 }
 const options: optionProps[] = [
-  // {
-  //   label: "Select",
-  //   value: "select",
-  //   icon: <DragOutlined />, style={{transform: [{rotateY: '180deg'}]}}/>
-  //   toggle: true,
-  // },
-
   {
     label: "Allign",
     value: "allign",
@@ -88,6 +85,17 @@ const options: optionProps[] = [
 
 const Sidebar: FC = () => {
   const { selectedTool, setSelectedTool } = useContext(ToolContext);
+
+    const { nodes, setNodes } = React.useContext(NodesContext);
+  const { topics, setTopics } = React.useContext(TopicsContext);
+  const { devices, setDevices } = React.useContext(DevicesContext);
+  useEffect(() => { 
+    if (selectedTool === "export") {
+      CodeGenerator(nodes, topics,devices.list)
+      setSelectedTool("");
+  }
+  }, [selectedTool]);
+
   return (
     <Card
       style={{

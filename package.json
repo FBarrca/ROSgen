@@ -1,7 +1,7 @@
 {
   "name": "ROSgen",
   "version": "0.1.0",
-  "homepage": "https://github.com/FranciscoBarCa/ROSgen",
+  "homepage": "https://FranciscoBarCa.github.io/ROSgen",
   "private": true,
   "dependencies": {
     "@ant-design/icons": "^4.7.0",

@@ -40,7 +40,7 @@ const BottomBar: React.FC = () => {
             className={"bottom-button"}
             key={option.value}
             onClick={() => {
-              CodeGenerator(nodes, topics, devices.list);
+              // CodeGenerator(nodes, topics, devices.list);
             }}
           >
             {option.label}{" "}
