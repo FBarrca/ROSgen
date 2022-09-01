@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/FranciscoBarCa/ROSgen/static/css/main.b6b4615c.css",
-    "main.js": "/FranciscoBarCa/ROSgen/static/js/main.38a1319a.js",
-    "index.html": "/FranciscoBarCa/ROSgen/index.html",
-    "main.b6b4615c.css.map": "/FranciscoBarCa/ROSgen/static/css/main.b6b4615c.css.map",
-    "main.38a1319a.js.map": "/FranciscoBarCa/ROSgen/static/js/main.38a1319a.js.map"
+    "main.css": "/ROSgen/static/css/main.b6b4615c.css",
+    "main.js": "/ROSgen/static/js/main.5633ba5d.js",
+    "index.html": "/ROSgen/index.html",
+    "main.b6b4615c.css.map": "/ROSgen/static/css/main.b6b4615c.css.map",
+    "main.5633ba5d.js.map": "/ROSgen/static/js/main.5633ba5d.js.map"
   },
   "entrypoints": [
     "static/css/main.b6b4615c.css",
-    "static/js/main.38a1319a.js"
+    "static/js/main.5633ba5d.js"
   ]
 }
