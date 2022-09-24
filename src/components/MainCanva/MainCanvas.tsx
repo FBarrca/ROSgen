@@ -97,7 +97,7 @@ const Canvas = () => {
         addNode({
           position: { x: Input.x, y: Input.y },
           offset: { x: 0, y: 0 },
-          id: nodes.length.toString(),
+          id: nodes.length > 0 ? (Number(nodes[nodes.length - 1].id) + 1).toString() : "0",
           label: camelCase(text), // "Node " + (nodes.length + 1),
           subscribers: [],
           publishers: [],
@@ -109,7 +109,7 @@ const Canvas = () => {
         addTopic({
           position: { x: Input.x, y: Input.y },
           offset: { x: 0, y: 0 },
-          id: topics.length.toString(),
+          id: topics.length > 0 ? (Number(topics[topics.length - 1].id) + 1).toString() : "0",
           label: camelCase(text), // "Topic " + (topics.length + 1),
           type: {
             class: "geometry_msgs",
@@ -123,7 +123,7 @@ const Canvas = () => {
         addComment({
           position: { x: Input.x, y: Input.y },
           offset: { x: 0, y: 0 },
-          id: comments.length.toString(),
+          id: comments.length > 0 ? (Number(comments[comments.length - 1].id) + 1).toString() : "0",
           label: camelCase(text),
         });
         break;
