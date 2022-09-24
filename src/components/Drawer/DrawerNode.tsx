@@ -1,11 +1,17 @@
-import { Typography, Drawer, Form, Row, Col, Input, List, Select } from "antd";
+import { Button, Typography, Drawer, Form, Row, Col, Input, List, Select } from "antd";
 import React, { useContext } from "react";
 import DrawerContext from "../../hooks/DrawerContext";
+import { KonvaEventObject } from "konva/lib/Node";
+import { NodeProps } from "../../interfaces/MainCanvas";
+
+
 
 import { PublisherProps, SubscriberProps } from "../../interfaces/MainCanvas";
 import NodesContext from "../../hooks/NodesContext";
 import TopicsContext from "../../hooks/TopicsContext";
 import DevicesContext from "../../hooks/DevicesContext";
+import { DeleteOutlined } from "@ant-design/icons";
+import { camelCase } from "../ExportCode/camelCase";
 
 const { Text, Link } = Typography;
 
@@ -16,6 +22,23 @@ const DrawerNode: React.FC = (props) => {
   const { topics, setTopics } = useContext(TopicsContext);
   const onClose = () => {
     setDrawerState({ ...drawerState, visible: false });
+  };
+
+  const handleNodeDelete = (node: NodeProps) => {
+
+    //Delete all connections
+    setNodes((prev) =>
+      prev.map((n) => {
+        if (n.id === node.id) {
+          n.publishers = [];
+          n.subscribers = [];
+        }
+        return n;
+      })
+    );
+    //Delete node
+    setNodes((prev) => prev.filter((n) => n.id !== node.id));
+
   };
 
   const node = nodes.find((node) => node.id === drawerState.content.id);
@@ -29,7 +52,7 @@ const DrawerNode: React.FC = (props) => {
         marginBottom: "0px",
         paddingBottom: "0px",
       }}
-      extra={<>{/* <Button onClick={() => handleSave()}> Save Changes </Button> */}</>}
+      extra={<>{ <Button type="primary" icon={<DeleteOutlined />} onClick={(e) => handleNodeDelete(node!)}> Delete </Button> }</>}
     >
       <Form
         layout="vertical"
@@ -43,7 +66,7 @@ const DrawerNode: React.FC = (props) => {
                 editable={{
                   onChange: (e) => {
                     if (node) {
-                      node.label = e;
+                      node.label = camelCase(e);
                       setNodes([...nodes]);
                     }
                   },

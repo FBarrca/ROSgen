@@ -1,11 +1,15 @@
-import { Typography, Drawer, Form, Row, Col, Collapse, Cascader, Input } from "antd";
+import { Button,Typography, Drawer, Form, Row, Col, Collapse, Cascader, Input } from "antd";
 import React, { useContext } from "react";
 import DrawerContext from "../../hooks/DrawerContext";
+import { KonvaEventObject } from "konva/lib/Node";
+import { TopicProps } from "../../interfaces/MainCanvas";
+
 
 import messageTypes from "../../constants/messageTypes.json";
-import { InfoCircleOutlined } from "@ant-design/icons";
+import { DeleteOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import NodesContext from "../../hooks/NodesContext";
 import TopicsContext from "../../hooks/TopicsContext";
+import { camelCase } from "../ExportCode/camelCase";
 
 const { Text } = Typography;
 
@@ -18,6 +22,19 @@ const DrawerTopic: React.FC = (props) => {
   const { nodes, setNodes } = useContext(NodesContext);
   const { topics, setTopics } = useContext(TopicsContext);
   const topic = topics.find((topic) => topic.id === drawerState.content.id);
+
+  const handleTopicDelete = (topic: TopicProps) => {
+    //Delete all connections to the topic
+    // setNodes((prev) =>
+    //   prev.map((n) => {
+    //     n.publishers = n.publishers.filter((p) => p.topicID !== topic.id);
+    //     n.subscribers = n.subscribers.filter((s) => s.topicID !== topic.id);
+    //     return n;
+    //   })
+    // );
+    // //Delete topic
+    // setTopics((prev) => prev.filter((t) => t.id !== topic.id));
+  }
   return (
     <Drawer
       maskStyle={{ backgroundColor: "transparent" }}
@@ -25,7 +42,7 @@ const DrawerTopic: React.FC = (props) => {
       onClose={onClose}
       visible={drawerState.visible}
       bodyStyle={{ paddingBottom: 80 }}
-      extra={<>{/* <Button onClick={() => handleSave()}> Save Changes </Button> */}</>}
+      extra={<>{ <Button type="primary" icon={<DeleteOutlined />} onClick={(e) => handleTopicDelete(topic!)}> Delete </Button> }</>}
     >
       <Form
         layout="vertical"
@@ -42,7 +59,7 @@ const DrawerTopic: React.FC = (props) => {
                 editable={{
                   onChange: (e) => {
                     if (topic) {
-                      topic.label = e;
+                      topic.label = camelCase( e);
                       setTopics([...topics]);
                     }
                   },
