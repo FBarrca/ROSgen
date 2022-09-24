@@ -3,21 +3,23 @@ import { Rect, Text, Group } from "react-konva";
 
 import { TopicProps } from "../../interfaces/MainCanvas";
 
-interface Props {
+interface TopicComponentProps {
   topic: TopicProps;
-  onClick?: (e: any) => void;
+  onClick: (e: any) => void;
+  onContextMenu: (e: any) => void;
   onDragMove: (e: any) => void;
   selectedColor: string | null;
 }
 
-const Topic: React.FC<Props> = (props) => (
+const Topic: React.FC<TopicComponentProps> = (props) => (
   <Group
     draggable
     id={props.topic.id}
     onDragMove={(e) => {
       props.onDragMove(e);
     }}
-    onClick={props.onClick}
+    onClick={(e) => { e.evt.button === 0 && props.onClick(e) }}
+      onContextMenu={(e) => { e.evt.preventDefault(); props.onContextMenu(e) }}
     key={props.topic.id}
   >
     <Rect

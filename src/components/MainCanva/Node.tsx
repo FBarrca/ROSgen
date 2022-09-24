@@ -6,6 +6,7 @@ interface NodeComponentProps {
   node: NodeProps;
   onDragMove: (e: any) => void;
   onClick: (e: any) => void;
+  onContextMenu: (e: any) => void;
   selectedTool: string | null;
   selectedColor: string | null;
 }
@@ -22,7 +23,8 @@ const Node: React.FC<NodeComponentProps> = (props) => {
       onDragMove={(e) => {
         props.onDragMove(e);
       }}
-      onClick={props.onClick}
+      onClick={(e) => { e.evt.button === 0 && props.onClick(e) }}
+      onContextMenu={(e) => { e.evt.preventDefault(); props.onContextMenu(e) }}
     >
       <Ellipse
         radiusX={width / 2}
@@ -35,6 +37,8 @@ const Node: React.FC<NodeComponentProps> = (props) => {
         shadowColor="black"
         shadowBlur={10}
         shadowOpacity={0.3}
+        // onContextMenu={(e) => { e.evt.preventDefault(); console.log('right click'); }}
+
       />
       <Text
         width={width}

@@ -1,5 +1,6 @@
 import React, { useContext, useState, useMemo, useEffect } from "react";
 import { Stage, Layer } from "react-konva";
+import { ContextMenuTrigger, ContextMenu, ContextMenuItem } from 'rctx-contextmenu';
 
 import ToolContext from "../../hooks/ToolContext";
 import ScaleContext from "../../hooks/ScaleContext";
@@ -10,6 +11,8 @@ import Topic from "./Topic";
 import Comment from "./Comment";
 import Subscriber from "./Subscriber";
 import Publisher from "./Publisher";
+
+import {camelCase} from "../ExportCode/camelCase";
 
 import mouseToCanvasPosition from "./functions/mouseToCanvasPosition";
 import DoubleClickInput from "./EditableText/DoubleClickInput";
@@ -95,7 +98,7 @@ const Canvas = () => {
           position: { x: Input.x, y: Input.y },
           offset: { x: 0, y: 0 },
           id: nodes.length.toString(),
-          label: text, // "Node " + (nodes.length + 1),
+          label: camelCase(text), // "Node " + (nodes.length + 1),
           subscribers: [],
           publishers: [],
           device: devices.selected,
@@ -107,7 +110,7 @@ const Canvas = () => {
           position: { x: Input.x, y: Input.y },
           offset: { x: 0, y: 0 },
           id: topics.length.toString(),
-          label: text, // "Topic " + (topics.length + 1),
+          label: camelCase(text), // "Topic " + (topics.length + 1),
           type: {
             class: "geometry_msgs",
             type: "Twist.msg",
@@ -121,7 +124,7 @@ const Canvas = () => {
           position: { x: Input.x, y: Input.y },
           offset: { x: 0, y: 0 },
           id: comments.length.toString(),
-          label: text,
+          label: camelCase(text),
         });
         break;
       case "select":
@@ -251,7 +254,34 @@ const Canvas = () => {
       });
     }
   };
+  const handleNodeDelete = (e: KonvaEventObject<MouseEvent>, node: NodeProps) => {
 
+    //Delete all connections
+    setNodes((prev) =>
+      prev.map((n) => {
+        if (n.id === node.id) {
+          n.publishers = [];
+          n.subscribers = [];
+        }
+        return n;
+      })
+    );
+    //Delete node
+    setNodes((prev) => prev.filter((n) => n.id !== node.id));
+
+  };
+  const handleTopicDelete = (e: KonvaEventObject<MouseEvent>, topic: TopicProps) => {
+    //Delete all connections to the topic
+    setNodes((prev) =>
+      prev.map((n) => {
+        n.publishers = n.publishers.filter((p) => p.topicID !== topic.id);
+        n.subscribers = n.subscribers.filter((s) => s.topicID !== topic.id);
+        return n;
+      })
+    );
+    //Delete topic
+    setTopics((prev) => prev.filter((t) => t.id !== topic.id));
+  }
   const handleDragMoveNode = (e: KonvaEventObject<DragEvent>) => {
     const movingNode = e.target;
     const newPos = mouseToCanvasPosition(movingNode._lastPos, scale, position);
@@ -305,6 +335,7 @@ const Canvas = () => {
 
   return (
     <div>
+      
       <Stage
         width={window.innerWidth * 0.99}
         height={window.innerHeight * 0.99}
@@ -314,6 +345,7 @@ const Canvas = () => {
         onClick={handleTextInput}
         // onTap={handleTextInput}
       >
+        
         {/* Because of how Konva works, we need to use providers again */}
         {/* <NodesContext.Provider value={providerValueNodes}> */}
         <DrawerContext.Provider value={providerValueDrawer}>
@@ -321,6 +353,8 @@ const Canvas = () => {
             <PositionContext.Provider value={providerValuePosition}>
               <DevicesContext.Provider value={providerValueDevices}>
                 <Layer>
+
+                  
                   <DoubleClickInput
                     x={Input.x}
                     y={Input.y}
@@ -364,6 +398,7 @@ const Canvas = () => {
                         key={"Node" + node.id}
                         selectedTool={selectedTool}
                         onClick={(e: KonvaEventObject<MouseEvent>) => handleNodeClick(e, node)}
+                        onContextMenu={(e: KonvaEventObject<MouseEvent>) => handleNodeDelete(e, node)}
                         onDragMove={(e: KonvaEventObject<DragEvent>) => handleDragMoveNode(e)}
                         selectedColor={node.id === connectionCreator.fromNode?.id ? "red" : findColor(node.device)}
                       />
@@ -374,8 +409,10 @@ const Canvas = () => {
                       topic={topic}
                       key={"Topic" + topic.id}
                       onClick={(e: KonvaEventObject<MouseEvent>) => handleTopicClick(e, topic)}
+                      onContextMenu={(e: KonvaEventObject<MouseEvent>) => handleTopicDelete(e, topic)}
                       onDragMove={(e: KonvaEventObject<DragEvent>) => handleDragMoveTopic(e)}
                       selectedColor={topic.id === connectionCreator.fromTopic?.id ? "red" : "black"}
+
                     />
                   ))}
                   {comments.map((comment) => (
@@ -387,6 +424,8 @@ const Canvas = () => {
                     />
                   ))}
                 </Layer>
+                
+                
               </DevicesContext.Provider>
             </PositionContext.Provider>
           </ScaleContext.Provider>
